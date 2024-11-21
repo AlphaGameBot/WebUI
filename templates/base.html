@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AlphaGameBot</title>
+    {% if config.DEBUG %}
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    {% else %}
+    <link href="/static/tailwind.css" rel="stylesheet">
+    {% endif %}
+    <script src="https://cdn.jsdelivr.net/npm/alpinejs@2.8.2/dist/alpine.min.js" defer></script>
+
+    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+</head>
+<body class="bg-gray-100">
+    <div class="flex h-screen">
+        <!-- Sidebar -->
+        <div class="flex flex-col w-64 bg-gray-800 text-white">
+            <div class="flex items-center justify-between h-16 px-4 bg-gray-900">
+                <img src="/static/agb-64.png" alt="AlphaGameBot Logo" class="h-8 rounded-full">
+                <span class="text-lg font-semibold">AlphaGameBot</span>
+            </div>
+            <nav class="flex-grow px-4 py-2 space-y-2">
+                <div x-data="{ open: false }">
+                    <div class="flex items-center justify-between">
+                        <a href="/app/dashboard" class="block px-4 py-2 rounded hover:bg-gray-700">Dashboard</a>
+                        <button @click="open = !open" class="focus:outline-none">
+                            <i class="fas fa-chevron-down"></i>
+                        </button>
+                    </div>
+                    <div x-show="open" class="pl-4 space-y-2">
+                        <a href="#" class="block px-4 py-2 rounded hover:bg-gray-700">Sub-item 1</a>
+                        <a href="#" class="block px-4 py-2 rounded hover:bg-gray-700">Sub-item 2</a>
+                    </div>
+                </div>
+                <a href="#" class="block px-4 py-2 rounded hover:bg-gray-700">Settings</a>
+                <a href="#" class="block px-4 py-2 rounded hover:bg-gray-700">Profile</a>
+                <a href="#" class="block px-4 py-2 rounded hover:bg-gray-700">Logout</a>
+                <a href="/auth/discord/signin" class="block px-4 py-2 rounded hover:bg-gray-700">Sign in with Discord</a>
+            </nav>
+        </div>
+        <!-- Main Content -->
+        <div class="flex-grow p-6">
+            <div class="bg-white p-6 rounded shadow-md">
+                <div class="absolute top-0 right-0 m-4">
+                    {% if user.avatar %}
+                        <img src="https://cdn.discordapp.com/avatars/{{ user.id }}/{{ user.avatar }}.jpg?size=48" alt="User Avatar ({{ user.name }})" class="h-12 w-12 rounded-full">
+                    {% endif %}
+                </div>
+                {% block content %}
+                <!-- Main content goes here -->
+                {% endblock %}
+            </div>
+        </div>
+    </div>
+</body>
+</html>
