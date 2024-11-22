@@ -12,13 +12,13 @@ def check_cookie():
 def app_index():
     token = request.cookies.get("access_token")
     user = get_user_info(token)
-    return render_template("app-home.html", user=user)
+    return render_template("app/home.html", user=user)
 
 @app.route("/dashboard")
 def app_dashboard():
     token = request.cookies.get("access_token")
     user = get_user_info(token)
-    return render_template("app-dashboard.html", user=user)
+    return render_template("app/dashboard.html", user=user)
 
 @app.route("/user")
 def app_user():
