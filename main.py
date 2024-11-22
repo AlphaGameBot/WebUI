@@ -6,7 +6,7 @@ from utility import get_user_info
 from blueprints.auth_discord import auth_discord
 from blueprints.app import app as app_bp
 
-app = Flask(__name__)
+app = Flask(__name__, static_url_path='/static')
 app.register_blueprint(auth_discord, url_prefix="/auth/discord")
 app.register_blueprint(app_bp, url_prefix="/app")
 

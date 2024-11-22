@@ -11,7 +11,6 @@ def check_cookie():
 @app.route("/")
 def app_index():
     token = request.cookies.get("access_token")
-    print(token, type(token))
     user = get_user_info(token)
     return render_template("app-home.html", user=user)
 
@@ -26,3 +25,15 @@ def app_user():
     token = request.cookies.get("access_token")
     user = get_user_info(token)
     return render_template("user-information.html", user=user)
+
+@app.route("/settings")
+@app.route("/profile")
+def not_implimented():
+    token = request.cookies.get("access_token")
+    user = get_user_info(token)
+    return render_template("not-implimented.html", user=user)
+@app.route("/logout")
+def logout():
+    r = redirect("/auth/discord/signin")
+    r.set_cookie("access_token", "", expires=0)
+    return r
