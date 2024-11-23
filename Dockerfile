@@ -31,11 +31,10 @@ FROM node:18-alpine AS tailwind-builder
 WORKDIR /app
 
 # Copy only the necessary files to build Tailwind CSS
-COPY package.json package-lock.json ./
-COPY ./src ./src
-
+COPY package.json package-lock.json input.css ./
+COPY templates /app/src/templates
 # Install dependencies and build Tailwind CSS
-RUN npm install && npx tailwindcss -i ./src/input.css -o ./dist/tailwind.css
+RUN npm install && npx tailwindcss -i ./input.css -o ./dist/tailwind.css --content './src/**/*.html'
 
 # Stage 2: Use the official Python image from the Docker Hub
 FROM python:3.12.7-slim
@@ -53,7 +52,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY . .
 
 # Copy the built Tailwind CSS file from the previous stage
-COPY --from=tailwind-builder /app/dist/tailwind.css ./dist/tailwind.css
+COPY --from=tailwind-builder /app/dist/tailwind.css ./static/tailwind.css
 
 # Command to run the application
-CMD ["python", "app.py"]
+CMD ["python", "main.py"]

@@ -1,0 +1,14 @@
+{
+  "name": "alphagamebot-webui",
+  "version": "1.0.0",
+  "description": "WebUI for AlphaGameBot!",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Damien Boisvert",
+  "license": "GPL-3.0-or-later",
+  "dependencies": {
+    "tailwindcss": "^3.4.15"
+  }
+}
