@@ -8,6 +8,9 @@ def button2int(b):
     return 1 if b == "on" else 0
 
 @app.before_request
+def commit_db():
+    cnx.commit()
+@app.before_request
 def check_cookie():
     if not request.cookies.get("access_token"):
         return redirect("/auth/discord/signin?reason=noDiscordAccessCookie")
@@ -35,11 +38,38 @@ def app_profile():
     token = request.cookies.get("access_token")
     user = get_user_info(token)
 
+    all_guilds = get_user_guilds(token)
+    guilds = []
+    cursor = cnx.cursor()
+    cursor.execute("SELECT guildid FROM guild_settings")
+    known_guilds = [id[0] for id in cursor.fetchall()]
+    for guild in all_guilds:
+        if int(guild["id"]) in known_guilds:
+            guilds.append(guild)
+
     cursor = cnx.cursor()
     cursor.execute("SELECT messages_sent FROM user_stats WHERE userid=%s", (user["id"],))
     messages_sent = cursor.fetchone()[0]
-    return render_template("app/user_profile.html", user=user, messages_sent=seperatedNumberByComma(messages_sent))
+    return render_template("app/user_profile.html", user=user, messages_sent=seperatedNumberByComma(messages_sent), guilds=guilds)
 
+@app.route("/stats/guild/<int:guildid>")
+def app_guild_stats(guildid):
+    token = request.cookies.get("access_token")
+    user = get_user_info(token)
+    cursor = cnx.cursor()
+    cursor.execute("SELECT leveling_enabled FROM guild_settings WHERE guildid=%s", (guildid,))
+    guilddb = cursor.fetchone()[0]
+    if not guilddb:
+        return render_template("simple-message.html", title="Unknown Guild", message="AlphaGameBot doesn't know that guild... Is AlphaGameBot in that server, and is leveling enabled?", user=user)
+    guild = get_guild_by_id(guildid)
+    
+    if guild.get("code") == 10004:
+        return render_template("simple-message.html", user=user, title="Guild Not Found", message="AlphaGameBot can't find the requested guild.  Either it doesn't exist (it happens to the best of us!), or AlphaGameBot is not in that guild, yet.")
+    
+    cursor.execute("SELECT user_level, points, messages_sent, commands_ran FROM guild_user_stats WHERE userid = %s AND guildid = %s", (user["id"], guildid))
+    level, points, messages_sent, commands_ran = cursor.fetchone()
+
+    return render_template("app/guild_user_stats.html", user=user, guild=guild, level=level, points=points, messages_sent=messages_sent, commands_ran=commands_ran)
 @app.route("/settings")
 def not_implimented():
     token = request.cookies.get("access_token")
@@ -80,7 +110,7 @@ def app_guild(guildid):
     guild = get_guild_by_id(guildid)
     
     if guild.get("code") == 10004:
-        return render_template("simple-message.html", user=user, title="Guild Not Found", message="The guild you are trying to access does not exist.")
+        return render_template("simple-message.html", user=user, title="Guild Not Found", message="AlphaGameBot can't find the requested guild.  Either it doesn't exist (it happens to the best of us!), or AlphaGameBot is not in that guild, yet.")
     return render_template("app/admin_guild.html", user=user, guild=guild, guilddb=guilddb, leveling=leveling)
 
 @app.route("/admin/guild/<int:guildid>/updateSettings", methods=["POST"])
@@ -96,7 +126,7 @@ def app_guild_update(guildid):
     guild = [g for g in get_user_guilds(token) if int(g["id"]) == guildid][0]
     
     if guild.get("code") == 10004:
-        return render_template("simple-message.html", user=user, title="Guild Not Found", message="The guild you are trying to access does not exist.")
+        return render_template("simple-message.html", user=user, title="Guild Not Found", message="AlphaGameBot can't find the requested guild.  Either it doesn't exist (it happens to the best of us!), or AlphaGameBot is not in that guild, yet.")
     
     if not has_permission(guild["permissions"], 8):
         return render_template("simple-message.html", user=user, title="No Permission", message="You do not have permission to do this.")
@@ -106,6 +136,7 @@ def app_guild_update(guildid):
     cnx.commit()
     cursor.close()
     return redirect("/app/admin/guild/" + str(guildid) + "?updatedSettings=1")
+
 @app.route("/about")
 def app_about():
     token = request.cookies.get("access_token")

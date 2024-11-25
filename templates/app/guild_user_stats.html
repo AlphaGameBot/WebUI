@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1 class="text-4xl font-bold mb-4">Stats: {{ guild.name }}</h1>
+<br>
+
+<p class="text-lg">Hey, {{ user.global_name }}, here are your stats in {{ guild.name }}!</p>
+
+<hr />
+
+<p class="text-lg mt-4">Messages Sent: <span class="bold">{{ messages_sent }}</span></p>
+<p class="text-lg mt-4">Commands Ran: <span class="bold">{{ commands_ran }}</span></p>
+<p class="text-lg mt-4">Total Points: <span class="bold">{{ points }}</span></p>
+
+{% endblock %}

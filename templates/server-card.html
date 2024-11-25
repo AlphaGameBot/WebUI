@@ -1,0 +1,15 @@
+{% macro render_server_card(guild, url) %}
+<!--macro-->
+<div class="bg-white p-4 rounded shadow-md mt-4 group">
+    <div class="flex items-center">
+        <img src="https://cdn.discordapp.com/icons/{{ guild.id }}/{{ guild.icon }}.png?size=64" 
+             alt="{{ guild.name }} Server Icon" class="h-12 w-12 rounded-full">
+        <div class="ml-4">
+            <a href="{{ url }}">
+                <h2 class="text-2xl font-semibold">{{ guild.name }}</h2>
+            </a>
+            <p class="text-sm">GuildID: {{ guild.id }}</p>
+        </div>
+    </div>
+</div>
+{% endmacro %}
