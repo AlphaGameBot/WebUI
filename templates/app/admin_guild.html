@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1 class="text-4xl font-bold mb-4">{{ guild.name }}</h1>
+<p class="text-lg">Hey, {{ user.global_name }}, here are the settings of AlphaGameBot in your Discord server!</p>
+<hr />
+
+<form action="/app/admin/guild/{{ guild.id }}/updateSettings" method="POST">
+    <label class="block mt-4">
+        <span class="text-gray-700 text-xl">Enable Leveling</span>
+        <input type="checkbox" name="leveling_enabled" id="leveling_enabled" class="w-6 h-6 ml-2" {% if leveling %}checked{% endif %} />
+    </label>
+    <input type="submit" value="Update Settings" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mt-4">
+</form>
+{% endblock %}

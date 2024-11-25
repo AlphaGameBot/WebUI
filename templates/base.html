@@ -1,52 +1,56 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AlphaGameBot</title>
-    {% if config.DEBUG %}
-    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
-    {% else %}
-    <link href="/static/tailwind.css" rel="stylesheet">
-    {% endif %}
-    <script src="https://cdn.jsdelivr.net/npm/alpinejs@2.8.2/dist/alpine.min.js" defer></script>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>AlphaGameBot</title>
+        {% if config.DEBUG %}
+        <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+        {% else %}
+        <link href="/static/tailwind.css" rel="stylesheet">
+        {% endif %}
+        <script src="https://cdn.jsdelivr.net/npm/alpinejs@2.8.2/dist/alpine.min.js" defer></script>
 
-    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
-</head>
-<body class="bg-gray-100">
-    <div class="flex h-screen overflow-hidden">
-        <!-- Sidebar -->
-        <div class="flex flex-col w-64 bg-gray-800 text-white">
-            <div class="flex items-center justify-between h-16 px-4 bg-gray-900">
-                <img src="/static/agb-64.png" alt="AlphaGameBot Logo" class="h-8 rounded-full">
-                <span class="text-lg font-semibold">AlphaGameBot</span>
-            </div>
-            <nav class="flex-grow px-4 py-2 space-y-2">
-                <a href="/app/dashboard" class="block px-4 py-2 rounded hover:bg-gray-700">Dashboard</a>
-                <a href="/app/settings" class="block px-4 py-2 rounded hover:bg-gray-700">Settings</a>
-                <a href="/app/profile" class="block px-4 py-2 rounded hover:bg-gray-700">Profile</a>
-                <a href="/app/admin" class="block px-4 py-2 rounded hover:bg-gray-700">Admin</a>
-                <div class="mt-auto">
-                    <a href="/app/logout" class="block px-4 py-2 rounded hover:bg-gray-700">Logout</a>
+        <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+    </head>
+    <body class="bg-gray-100">
+        <div class="flex h-screen overflow-hidden">
+            <!-- Sidebar -->
+            <div class="flex flex-col w-64 bg-gray-800 text-white">
+                <div class="flex items-center justify-between h-16 px-4 bg-gray-900">
+                    <img src="/static/agb-64.png" alt="AlphaGameBot Logo" class="h-8 rounded-full">
+                    <a href="/" class="text-white"><span class="text-xl font-semibold">AlphaGameBot</span></a>
                 </div>
-            </nav>
-        </div>
-        <!-- Main Content -->
-        <div class="flex-grow p-6 overflow-y-auto h-full">
-            <div class="bg-white p-6 rounded shadow-md">
-                <div class="absolute top-0 right-0 m-4">
-                    {% if user.avatar %}
-                    <div class="relative group">
-                        <img src="https://cdn.discordapp.com/avatars/{{ user.id }}/{{ user.avatar }}.jpg?size=48" alt="User Avatar ({{ user.name }})" class="h-12 w-12 rounded-full">
-                        <span class="absolute right-full top-1/2 transform -translate-y-1/2 mr-2 whitespace-nowrap bg-gray-800 text-white px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity duration-300">Howdy, {{ user.global_name }}!</span>
+                <nav class="flex-grow px-4 py-2 space-y-2">
+                    <a href="/app/dashboard" class="block px-4 py-2 rounded hover:bg-gray-700">Dashboard</a>
+                    <a href="/app/about" class="block px-4 py-2 rounded hover:bg-gray-700">About</a>
+                    <a href="/app/settings" class="block px-4 py-2 rounded hover:bg-gray-700">Settings</a>
+                    <a href="/app/profile" class="block px-4 py-2 rounded hover:bg-gray-700">Profile</a>
+                    <a href="/app/admin" class="block px-4 py-2 rounded hover:bg-gray-700">Admin</a>
+                    <a href="/app/logout" class="block px-4 py-2 rounded hover:bg-gray-700 w-full">Logout</a>
+                </nav>
+                
+                <div class="mt-auto p-4">
+                    <p class="text-center text-gray-400 text-sm">© 2024 Damien Boisvert (AlphaGameDeveloper).  Some Rights Reserved</p>
+                </div>
+            </div>
+            <!-- Main Content -->
+            <div class="flex-grow p-6 overflow-y-auto h-full">
+                <div class="bg-white p-6 rounded shadow-md">
+                    <div class="absolute top-0 right-0 m-4">
+                        {% if user.avatar %}
+                        <div class="relative group">
+                            <img src="https://cdn.discordapp.com/avatars/{{ user.id }}/{{ user.avatar }}.jpg?size=48" alt="User Avatar ({{ user.username }})" class="h-12 w-12 rounded-full">
+                            <span class="absolute right-full top-1/2 text-right transform -translate-y-1/2 mr-2 whitespace-nowrap bg-gray-800 text-white px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity duration-300">Howdy, {{ user.global_name }}!<br>
+                            <span class="text-xs" ><a href="/app/logout" class="text-blue-500">Sign Out?</a></span></span>
+                        </div>
+                        {% endif %}
                     </div>
-                    {% endif %}
+                    {% block content %}
+                    <!-- Main content goes here -->
+                    {% endblock %}
                 </div>
-                {% block content %}
-                <!-- Main content goes here -->
-                {% endblock %}
             </div>
         </div>
-    </div>
-</body>
+    </body>
 </html>

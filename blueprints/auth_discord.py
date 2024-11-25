@@ -12,9 +12,14 @@ def sign_in():
 
 @auth_discord.route('/login')
 def discord_login():
-    print("blueprin login")
-    return redirect("https://discord.com/api/oauth2/authorize?client_id={CLIENT_ID}&response_type=code&scope=identify".format(
-        CLIENT_ID=getenv("DISCORD_CLIENT_ID")
+    scopes = [
+        "identify",
+        "guilds",
+        "guilds.members.read"
+    ]
+    return redirect("https://discord.com/api/oauth2/authorize?client_id={CLIENT_ID}&response_type=code&scope={SCOPES}".format(
+        CLIENT_ID=getenv("DISCORD_CLIENT_ID"),
+        SCOPES="+".join(scopes)
     ))
 
 @auth_discord.route('/callback')
