@@ -1,11 +1,12 @@
 from flask import render_template, redirect, request, Response, Blueprint
-from utility import get_user_info, get_user_guilds, cnx, has_permission, get_guild_by_id
+from utility import get_user_info, get_user_guilds, cnx, has_permission, get_guild_by_id, seperatedNumberByComma
 import logging
 
 app = Blueprint("app", __name__)
 
 def button2int(b):
     return 1 if b == "on" else 0
+
 @app.before_request
 def check_cookie():
     if not request.cookies.get("access_token"):
@@ -29,8 +30,17 @@ def app_user():
     user = get_user_info(token)
     return render_template("user-information.html", user=user)
 
-@app.route("/settings")
 @app.route("/profile")
+def app_profile():
+    token = request.cookies.get("access_token")
+    user = get_user_info(token)
+
+    cursor = cnx.cursor()
+    cursor.execute("SELECT messages_sent FROM user_stats WHERE userid=%s", (user["id"],))
+    messages_sent = cursor.fetchone()[0]
+    return render_template("app/user_profile.html", user=user, messages_sent=seperatedNumberByComma(messages_sent))
+
+@app.route("/settings")
 def not_implimented():
     token = request.cookies.get("access_token")
     user = get_user_info(token)

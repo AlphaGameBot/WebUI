@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1 class="text-4xl font-bold mb-4">Profile</h1>
+<p class="text-lg">Hey, {{ user.global_name }}, here are your user profile settings!</p>
+<hr />
+
+<p class="text-lg mt-4">Messages Sent: <span class="bold">{{ messages_sent }}</span></p>
+
+<p class="text-xl mt-4">You can increase these scores in any servers with AlphaGameBot in it! <span class="italic">so it'd be *really* nice if you would add it! *nudge* *nudge*, </span></p>
+{% endblock %}

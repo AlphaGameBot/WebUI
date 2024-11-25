@@ -11,6 +11,8 @@ DB_CONNECTION_INFO = {
 }
 cnx = mysql.connector.connect(**DB_CONNECTION_INFO)
 
+def seperatedNumberByComma(number):
+    return "{:,}".format(number)
 def has_permission(permissions, permission):
     return permissions & permission != 0
 
