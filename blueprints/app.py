@@ -1,5 +1,6 @@
 from flask import render_template, redirect, request, Response, Blueprint
-from utility import get_user_info, get_user_guilds, cnx, has_permission, get_guild_by_id, seperatedNumberByComma
+from utility import get_user_info, get_user_guilds, cnx, has_permission, get_guild_by_id, seperatedNumberByComma, get_user_by_id
+from os import getenv   
 import logging
 
 app = Blueprint("app", __name__)
@@ -9,17 +10,19 @@ def button2int(b):
 
 @app.before_request
 def commit_db():
+    cnx.ping(attempts = 4, reconnect = True)
     cnx.commit()
+
 @app.before_request
 def check_cookie():
     if not request.cookies.get("access_token"):
-        return redirect("/auth/discord/signin?reason=noDiscordAccessCookie")
+        return redirect("/auth/discord/signin")
 
 @app.route("/")
 def app_index():
     token = request.cookies.get("access_token")
     user = get_user_info(token)
-    return render_template("app/home.html", user=user)
+    return render_template("app/app_home.html", user=user, client_id = getenv("DISCORD_CLIENT_ID"))
 
 @app.route("/dashboard")
 def app_dashboard():
@@ -33,43 +36,6 @@ def app_user():
     user = get_user_info(token)
     return render_template("user-information.html", user=user)
 
-@app.route("/profile")
-def app_profile():
-    token = request.cookies.get("access_token")
-    user = get_user_info(token)
-
-    all_guilds = get_user_guilds(token)
-    guilds = []
-    cursor = cnx.cursor()
-    cursor.execute("SELECT guildid FROM guild_settings")
-    known_guilds = [id[0] for id in cursor.fetchall()]
-    for guild in all_guilds:
-        if int(guild["id"]) in known_guilds:
-            guilds.append(guild)
-
-    cursor = cnx.cursor()
-    cursor.execute("SELECT messages_sent FROM user_stats WHERE userid=%s", (user["id"],))
-    messages_sent = cursor.fetchone()[0]
-    return render_template("app/user_profile.html", user=user, messages_sent=seperatedNumberByComma(messages_sent), guilds=guilds)
-
-@app.route("/stats/guild/<int:guildid>")
-def app_guild_stats(guildid):
-    token = request.cookies.get("access_token")
-    user = get_user_info(token)
-    cursor = cnx.cursor()
-    cursor.execute("SELECT leveling_enabled FROM guild_settings WHERE guildid=%s", (guildid,))
-    guilddb = cursor.fetchone()[0]
-    if not guilddb:
-        return render_template("simple-message.html", title="Unknown Guild", message="AlphaGameBot doesn't know that guild... Is AlphaGameBot in that server, and is leveling enabled?", user=user)
-    guild = get_guild_by_id(guildid)
-    
-    if guild.get("code") == 10004:
-        return render_template("simple-message.html", user=user, title="Guild Not Found", message="AlphaGameBot can't find the requested guild.  Either it doesn't exist (it happens to the best of us!), or AlphaGameBot is not in that guild, yet.")
-    
-    cursor.execute("SELECT user_level, points, messages_sent, commands_ran FROM guild_user_stats WHERE userid = %s AND guildid = %s", (user["id"], guildid))
-    level, points, messages_sent, commands_ran = cursor.fetchone()
-
-    return render_template("app/guild_user_stats.html", user=user, guild=guild, level=level, points=points, messages_sent=messages_sent, commands_ran=commands_ran)
 @app.route("/settings")
 def not_implimented():
     token = request.cookies.get("access_token")
@@ -142,6 +108,12 @@ def app_about():
     token = request.cookies.get("access_token")
     user = get_user_info(token)
     return render_template("app/about.html", user=user)
+
+@app.route("/add-the-bot")
+def app_add_the_bot():
+    token = request.cookies.get("access_token")
+    user = get_user_info(token)
+    return render_template("app/add_the_bot.html", user=user)
 
 @app.route("/logout")
 def logout():

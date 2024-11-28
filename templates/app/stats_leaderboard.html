@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1 class="text-4xl font-bold mb-4">Leaderboard</h1>
+<p class="text-lg">Hey, {{ user.global_name }}, here are the top 10 users in the system!</p>
+<p class="text-lg">You're #{{ current_user_place }} of {{ total_user_count }} on the leaderboard!</p>
+<hr />
+
+<table>
+    <tr>
+        <th>Rank</th>
+        <th>&nbsp;</th>
+        <th>Username</th>
+        <th>Points</th>
+    </tr>
+    {% for leaderboard_user in users %}
+    <tr>
+        <td>{{ loop.index }}</td>
+        <td class="p"><img src="https://cdn.discordapp.com/avatars/{{ leaderboard_user.id }}/{{ leaderboard_user.avatar }}.jpg?size=48" alt="User Avatar ({{ leaderboard_user.username }})" class="h-8 w-8 rounded-full"></td>
+        <td>{{ leaderboard_user.global_name }}</td>
+        <td>{{ leaderboard_user.points }}</td>
+    </tr>
+    {% endfor %}
+</table>
+{% endblock %}
