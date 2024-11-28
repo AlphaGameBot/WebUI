@@ -1,21 +1,28 @@
 from flask import render_template, redirect, request, Response, Blueprint
-from utility import get_user_info, get_user_guilds, cnx, has_permission, get_guild_by_id
+from utility import get_user_info, get_user_guilds, cnx, has_permission, get_guild_by_id, seperatedNumberByComma, get_user_by_id
+from os import getenv   
 import logging
 
 app = Blueprint("app", __name__)
 
 def button2int(b):
     return 1 if b == "on" else 0
+
+@app.before_request
+def commit_db():
+    cnx.ping(attempts = 4, reconnect = True)
+    cnx.commit()
+
 @app.before_request
 def check_cookie():
     if not request.cookies.get("access_token"):
-        return redirect("/auth/discord/signin?reason=noDiscordAccessCookie")
+        return redirect("/auth/discord/signin")
 
 @app.route("/")
 def app_index():
     token = request.cookies.get("access_token")
     user = get_user_info(token)
-    return render_template("app/home.html", user=user)
+    return render_template("app/app_home.html", user=user, client_id = getenv("DISCORD_CLIENT_ID"))
 
 @app.route("/dashboard")
 def app_dashboard():
@@ -30,7 +37,6 @@ def app_user():
     return render_template("user-information.html", user=user)
 
 @app.route("/settings")
-@app.route("/profile")
 def not_implimented():
     token = request.cookies.get("access_token")
     user = get_user_info(token)
@@ -70,7 +76,7 @@ def app_guild(guildid):
     guild = get_guild_by_id(guildid)
     
     if guild.get("code") == 10004:
-        return render_template("simple-message.html", user=user, title="Guild Not Found", message="The guild you are trying to access does not exist.")
+        return render_template("simple-message.html", user=user, title="Guild Not Found", message="AlphaGameBot can't find the requested guild.  Either it doesn't exist (it happens to the best of us!), or AlphaGameBot is not in that guild, yet.")
     return render_template("app/admin_guild.html", user=user, guild=guild, guilddb=guilddb, leveling=leveling)
 
 @app.route("/admin/guild/<int:guildid>/updateSettings", methods=["POST"])
@@ -86,7 +92,7 @@ def app_guild_update(guildid):
     guild = [g for g in get_user_guilds(token) if int(g["id"]) == guildid][0]
     
     if guild.get("code") == 10004:
-        return render_template("simple-message.html", user=user, title="Guild Not Found", message="The guild you are trying to access does not exist.")
+        return render_template("simple-message.html", user=user, title="Guild Not Found", message="AlphaGameBot can't find the requested guild.  Either it doesn't exist (it happens to the best of us!), or AlphaGameBot is not in that guild, yet.")
     
     if not has_permission(guild["permissions"], 8):
         return render_template("simple-message.html", user=user, title="No Permission", message="You do not have permission to do this.")
@@ -96,11 +102,18 @@ def app_guild_update(guildid):
     cnx.commit()
     cursor.close()
     return redirect("/app/admin/guild/" + str(guildid) + "?updatedSettings=1")
+
 @app.route("/about")
 def app_about():
     token = request.cookies.get("access_token")
     user = get_user_info(token)
     return render_template("app/about.html", user=user)
+
+@app.route("/add-the-bot")
+def app_add_the_bot():
+    token = request.cookies.get("access_token")
+    user = get_user_info(token)
+    return render_template("app/add_the_bot.html", user=user)
 
 @app.route("/logout")
 def logout():

@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1 class="text-4xl font-bold mb-4">{{ showing_user.global_name }}</h1>
+
+<p class="text-lg">Messages Sent: <b>{{ messages_sent }}</b></p>
+<p class="text-lg">Commands Ran: <b>{{ commands_ran }}</b></p>
+
+{% endblock %}
