@@ -63,13 +63,29 @@ def app_leaderboard():
     user = get_user_info(token)
     cursor = cnx.cursor()
     # get list with 10 highest levels
-    cursor.execute("SELECT userid FROM guild_user_stats ORDER BY messages_sent+commands_ran DESC LIMIT 10")
+    cursor.execute("SELECT userid FROM guild_user_stats ORDER BY (messages_sent+commands_ran*5) DESC LIMIT 10")
     users_db = cursor.fetchall()
     # 1. get the top 10 user (IDs)
     top10userids = [uid[0] for uid in users_db]
     
     # 2. get the user info for each user async
     users = mass_get_users_by_id_async(top10userids)
+
+    # get the stats for the current logged-in user
+    cursor.execute("SELECT messages_sent, commands_ran FROM user_stats WHERE userid=%s", (user["id"],))
+    re = cursor.fetchone()
+    if re is None:
+        messages_sent = 0
+        commands_ran = 0
+        points = 0
+    else:
+        messages_sent, commands_ran = re
+        points = messages_sent + commands_ran * 5
+    user["statistics"] = {
+        "messages_sent": messages_sent,
+        "commands_ran": commands_ran,
+        "points": points
+    }
 
     for leaderboard_user in users:
         cursor.execute("SELECT messages_sent, commands_ran FROM user_stats WHERE userid=%s", (leaderboard_user["id"],))
@@ -81,7 +97,8 @@ def app_leaderboard():
             messages_sent, commands_ran = re
         info = {
             "messages_sent": messages_sent,
-            "commands_ran": commands_ran
+            "commands_ran": commands_ran,
+            "points": messages_sent + commands_ran * 5
         }
         leaderboard_user["statistics"] = info
     
@@ -90,6 +107,9 @@ def app_leaderboard():
     user_ids = [int(uid[0]) for uid in all_users]
     user_place = user_ids.index(int(user["id"])) + 1
     total_user_count = seperatedNumberByComma(len(user_ids))
+    
+    users.sort(key=lambda x: x["statistics"]["points"], reverse=True)
+
     return render_template("app/stats_leaderboard.html", user=user, users=users, current_user_place=user_place, total_user_count=total_user_count)
 
 @app_stats.route("/user/<int:userid>")

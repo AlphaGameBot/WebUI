@@ -3,7 +3,7 @@
 {% block content %}
 <h1 class="text-4xl font-bold mb-4">Leaderboard</h1>
 <p class="text-lg">Hey, {{ user.global_name }}, here are the top 10 users in the system!</p>
-<p class="text-lg">You're #{{ current_user_place }} of {{ total_user_count }} on the leaderboard!</p>
+<p class="text-lg">You're #{{ current_user_place }} of {{ total_user_count }} on the leaderboard with <b class="bold">{{ user.statistics.points }}</b> points!</p>
 <hr />
 
 <table>
@@ -17,9 +17,18 @@
     <tr>
         <td>{{ loop.index }}</td>
         <td class="p"><img src="https://cdn.discordapp.com/avatars/{{ leaderboard_user.id }}/{{ leaderboard_user.avatar }}.jpg?size=48" alt="User Avatar ({{ leaderboard_user.username }})" class="h-8 w-8 rounded-full"></td>
-        <td>{{ leaderboard_user.global_name }}</td>
-        <td>{{ leaderboard_user.points }}</td>
+        <td class="pr-5">{{ leaderboard_user.global_name }}</td>
+        <td>{{ leaderboard_user.statistics.points }}</td>
     </tr>
     {% endfor %}
+    <!-- if the current user is not in the above, add them here! -->
+    {% if current_user_place > users|length %}
+    <tr>
+        <td>{{ current_user_place }}</td>
+        <td class="p"><img src="https://cdn.discordapp.com/avatars/{{ user.id }}/{{ user.avatar }}.jpg?size=48" alt="User Avatar ({{ user.username }})" class="h-8 w-8 rounded-full"></td>
+        <td class="pr-5">{{ user.global_name }}</td>
+        <td>{{ user.statistics.points }}</td>
+    </tr>
+    {% endif %}
 </table>
 {% endblock %}
