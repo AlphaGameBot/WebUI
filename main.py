@@ -1,4 +1,5 @@
 from flask import Flask, render_template, redirect, request, Response
+from flask_font_awesome import FontAwesome
 import requests
 import logging
 from json import loads
@@ -12,6 +13,7 @@ from blueprints.app_admin import app_admin
 logging.basicConfig(format="%(message)s")
 
 app = Flask(__name__, static_url_path='/static')
+fa = FontAwesome(app)
 app.register_blueprint(auth_discord, url_prefix="/auth/discord")
 app.register_blueprint(app_bp, url_prefix="/app")
 app.register_blueprint(app_stats, url_prefix="/app/stats/")

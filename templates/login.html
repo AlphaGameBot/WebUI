@@ -3,8 +3,8 @@
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <script src="https://kit.fontawesome.com/3ae57d18df.js" crossorigin="anonymous"></script>
-        <title>discord sign in</title>
+        {{ font_awesome.load_js() }}
+        <title>Sign In &bull; AlphaGameBot</title>
         <style>
     @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@100;300;400;500;700;900&display=swap');
     body {
@@ -37,7 +37,10 @@
     <body>
         <div style="display: flex; justify-content: center; align-items: center; height: 100vh;">
             <h1 class="disc-h1" style="color: white; font-family: 'Roboto', sans-serif;">Sign in with Discord!</h1>
-            <p><a class="discord-button" href="/auth/discord/login"><i class="fab fa-discord"></i> Log in with Discord</a></p>
+            <p><a class="discord-button" href="/auth/discord/login">
+                {{ font_awesome.render_icon("fa-brands fa-discord") }}
+                Log in with Discord
+            </a></p>
         </div>
     </body>
 </html>
