@@ -3,3 +3,4 @@ requests
 python-dotenv
 mysql-connector-python
 Font-Awesome-Flask
+flask-resize
