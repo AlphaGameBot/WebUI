@@ -5,7 +5,11 @@
         <div class="row">
             <div class="col-md-12">
                 <h1 class="text-4xl font-bold mb-4">Admin</h1>
+                {% if guilds|length == 0 %}
+                <p class="text-lg">{{ user.global_name }}, you don't have any Discord servers!  Why not make one, and add AlphaGameBot to it?</p>
+                {% else %}
                 <p class="text-lg">Hey, {{ user.global_name }}, here are your Discord servers!</p>
+                {% endif %}
                 {% import 'server-card.html' as cards %}
                 {% for guild in guilds %}
                 {{ cards.render_server_card(guild, "/app/admin/guild/" + guild.id) }}
