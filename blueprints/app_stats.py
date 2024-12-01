@@ -61,6 +61,8 @@ def app_guild_stats(guildid):
 def app_leaderboard():
     token = request.cookies.get("access_token")
     user = get_user_info(token)
+
+    user["id"] = int(user["id"]) # discord id is a string, but we need it as an int
     cursor = cnx.cursor()
     # get list with 10 highest levels
     cursor.execute("SELECT userid FROM guild_user_stats ORDER BY (messages_sent+commands_ran*5) DESC LIMIT 10")
@@ -102,14 +104,16 @@ def app_leaderboard():
         }
         leaderboard_user["statistics"] = info
     
-    cursor.execute("SELECT userid FROM guild_user_stats ORDER BY messages_sent+commands_ran DESC")
+    cursor.execute("SELECT userid FROM user_stats ORDER BY messages_sent+commands_ran*5 DESC")
     all_users = cursor.fetchall()
-    user_ids = [int(uid[0]) for uid in all_users]
-    user_place = user_ids.index(int(user["id"])) + 1
-    total_user_count = seperatedNumberByComma(len(user_ids))
-    
-    users.sort(key=lambda x: x["statistics"]["points"], reverse=True)
+    all_user_ids = [uid[0] for uid in all_users] # list[int]
 
+    users.sort(key=lambda x: x["statistics"]["points"], reverse=True)
+    user_ids = [int(_user["id"]) for _user in users]
+    user_place = all_user_ids.index(user["id"]) + 1
+    total_user_count = seperatedNumberByComma(len(all_user_ids))
+    
+    user_place = all_user_ids.index(int(user["id"])) + 1
     return render_template("app/stats_leaderboard.html", user=user, users=users, current_user_place=user_place, total_user_count=total_user_count)
 
 @app_stats.route("/user/<int:userid>")
