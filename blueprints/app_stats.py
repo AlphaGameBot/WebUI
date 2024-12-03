@@ -6,7 +6,8 @@ from utility import (
     get_user_info,
     get_user_guilds,
     get_guild_by_id,
-    mass_get_users_by_id_async
+    mass_get_users_by_id_async,
+    inject_token_user
 )
 
 app_stats = Blueprint("app_stats", __name__)
@@ -19,11 +20,8 @@ def check_cookie():
     cnx.commit()
 
 @app_stats.route("/")
-def app_profile():
-    current_app.logger.debug("app_profile ok")
-    token = request.cookies.get("access_token")
-    user = get_user_info(token)
-
+@inject_token_user
+def app_profile(token, user):
     all_guilds = get_user_guilds(token)
     guilds = []
     cursor = cnx.cursor()
@@ -39,9 +37,8 @@ def app_profile():
     return render_template("app/user_profile.html", user=user, messages_sent=seperatedNumberByComma(messages_sent), guilds=guilds)
 
 @app_stats.route("/guild/<int:guildid>")
-def app_guild_stats(guildid):
-    token = request.cookies.get("access_token")
-    user = get_user_info(token)
+@inject_token_user
+def app_guild_stats(guildid, token, user):
     cursor = cnx.cursor()
     cursor.execute("SELECT leveling_enabled FROM guild_settings WHERE guildid=%s", (guildid,))
     guilddb = cursor.fetchone()[0]
@@ -58,10 +55,8 @@ def app_guild_stats(guildid):
     return render_template("app/guild_user_stats.html", user=user, guild=guild, level=level, points=points, messages_sent=messages_sent, commands_ran=commands_ran)
 
 @app_stats.route("/leaderboard")
-def app_leaderboard():
-    token = request.cookies.get("access_token")
-    user = get_user_info(token)
-
+@inject_token_user
+def app_leaderboard(token, user):
     user["id"] = int(user["id"]) # discord id is a string, but we need it as an int
     cursor = cnx.cursor()
     # get list with 10 highest levels
@@ -83,10 +78,11 @@ def app_leaderboard():
     else:
         messages_sent, commands_ran = re
         points = messages_sent + commands_ran * 5
+        
     user["statistics"] = {
         "messages_sent": messages_sent,
         "commands_ran": commands_ran,
-        "points": points
+        "points": seperatedNumberByComma(points)
     }
 
     for leaderboard_user in users:
@@ -100,7 +96,8 @@ def app_leaderboard():
         info = {
             "messages_sent": messages_sent,
             "commands_ran": commands_ran,
-            "points": messages_sent + commands_ran * 5
+            "points": messages_sent + commands_ran * 5,
+            "display_points": seperatedNumberByComma(messages_sent + commands_ran * 5)
         }
         leaderboard_user["statistics"] = info
     
@@ -117,9 +114,8 @@ def app_leaderboard():
     return render_template("app/stats_leaderboard.html", user=user, users=users, current_user_place=user_place, total_user_count=total_user_count)
 
 @app_stats.route("/user/<int:userid>")
-def app_user_stats(userid):
-    token = request.cookies.get("access_token")
-    user = get_user_info(token)
+@inject_token_user
+def app_user_stats(userid, token, user):
     showing_user = get_user_by_id(userid)
     cursor = cnx.cursor()
     cursor.execute("SELECT messages_sent, commands_ran FROM user_stats WHERE userid = %s", (userid,))

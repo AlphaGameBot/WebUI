@@ -1,5 +1,5 @@
 from flask import render_template, redirect, request, Response, Blueprint
-from utility import get_user_info, get_user_guilds, cnx, has_permission, get_guild_by_id, seperatedNumberByComma, get_user_by_id
+from utility import get_user_info, get_user_guilds, cnx, has_permission, get_guild_by_id, seperatedNumberByComma, get_user_by_id, inject_token_user
 from os import getenv   
 import logging
 
@@ -16,39 +16,33 @@ def check_cookie():
         return redirect("/auth/discord/signin")
 
 @app.route("/")
-def app_index():
-    token = request.cookies.get("access_token")
-    user = get_user_info(token)
+@inject_token_user
+def app_index(token, user):
     return render_template("app/app_home.html", user=user, client_id = getenv("DISCORD_CLIENT_ID"))
 
 @app.route("/dashboard")
-def app_dashboard():
-    token = request.cookies.get("access_token")
-    user = get_user_info(token)
+@inject_token_user
+def app_dashboard(token, user):
     return render_template("app/dashboard.html", user=user)
 
 @app.route("/user")
-def app_user():
-    token = request.cookies.get("access_token")
-    user = get_user_info(token)
+@inject_token_user
+def app_user(token, user):
     return render_template("user-information.html", user=user)
 
 @app.route("/settings")
-def not_implimented():
-    token = request.cookies.get("access_token")
-    user = get_user_info(token)
+@inject_token_user
+def not_implimented(token, user):
     return render_template("not-implimented.html", user=user)
 
 @app.route("/about")
-def app_about():
-    token = request.cookies.get("access_token")
-    user = get_user_info(token)
+@inject_token_user
+def app_about(token, user):
     return render_template("app/about.html", user=user)
 
 @app.route("/add-the-bot")
-def app_add_the_bot():
-    token = request.cookies.get("access_token")
-    user = get_user_info(token)
+@inject_token_user
+def app_add_the_bot(token, user):
     return render_template("app/add_the_bot.html", user=user)
 
 @app.route("/logout")

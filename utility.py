@@ -4,7 +4,8 @@ from json import loads
 from os import getenv
 import asyncio, aiohttp
 import mysql.connector
-from flask import current_app
+from functools import wraps
+from flask import current_app, request, jsonify, redirect, url_for
 
 DB_CONNECTION_INFO = {
     "host": getenv("MYSQL_HOST"),
@@ -64,11 +65,13 @@ def get_guild_roles(guild_id):
 def user_has_administrator(token, guildid):
     guild = get_user_guild_by_id(token, guildid)
     roles = get_guild_roles(guildid)
+    
+    user_roles = guild.get("roles", [])
+    if guild.get("code") == 10004:
+        return False
+    
     for role in roles:
-        if role not in guild["roles"]:
-            print("does not have role", role)
-            continue
-        if role["permissions"] & 8 == 8:
+        if role["id"] in user_roles and role.get("permissions") & 0x8:  # 0x8 is the bitwise value for ADMINISTRATOR
             return True
     return False
 
@@ -105,3 +108,17 @@ def mass_get_users_by_id_async(user_ids):
             return await asyncio.gather(*tasks)
     users = asyncio.run(fetch_all(user_ids))
     return users
+
+def inject_token_user(func):
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        token = request.cookies.get("access_token")
+
+        if request.args.get("debug_impersonate_user") and current_app.debug:
+            user = get_user_by_id(request.args.get("debug_impersonate_user"))
+        else:
+            user = get_user_info(token)
+        current_app.logger.debug("Injected user: (Username: %s, ID: %s)" % (user["username"], user["id"]))
+        
+        return func(token=token, user=user, *args, **kwargs)
+    return wrapper

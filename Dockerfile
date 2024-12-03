@@ -54,5 +54,7 @@ COPY . .
 # Copy the built Tailwind CSS file from the previous stage
 COPY --from=tailwind-builder /app/dist/tailwind.css ./static/tailwind.css
 
+ENV FLASK_APP=main
+
 # Command to run the application
-CMD ["python", "main.py"]
+CMD ["flask", "run"]

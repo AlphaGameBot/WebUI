@@ -1,6 +1,9 @@
 flask
 requests
+aiohttp
 python-dotenv
 mysql-connector-python
 Font-Awesome-Flask
 flask-resize
+# 'setuptools' because of a stupid problem with `flask-resize.` https://github.com/jacobsvante/Flask-Resize/issues/27
+setuptools

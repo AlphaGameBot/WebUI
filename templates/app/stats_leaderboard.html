@@ -18,7 +18,7 @@
         <td>{{ loop.index }}</td>
         <td class="p"><img src="https://cdn.discordapp.com/avatars/{{ leaderboard_user.id }}/{{ leaderboard_user.avatar }}.jpg?size=48" alt="User Avatar ({{ leaderboard_user.username }})" class="h-8 w-8 rounded-full"></td>
         <td class="pr-5">{{ leaderboard_user.global_name }}</td>
-        <td>{{ leaderboard_user.statistics.points }}</td>
+        <td>{{ leaderboard_user.statistics.display_points }}</td>
     </tr>
     {% endfor %}
     <!-- if the current user is not in the above, add them here! -->
