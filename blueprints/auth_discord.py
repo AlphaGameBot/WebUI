@@ -36,7 +36,6 @@ def discord_login_callback():
         "scope": "identify"
     })
     j = loads(r.content)
-    print(j)
     if r.status_code != 200:
         return Response("Error while logging in: %s" % j["error_description"] , status=500)
     

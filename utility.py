@@ -114,8 +114,9 @@ def inject_token_user(func):
     def wrapper(*args, **kwargs):
         token = request.cookies.get("access_token")
 
-        if request.args.get("debug_impersonate_user") and current_app.debug:
+        if request.args.get("debug_user") and current_app.debug:
             user = get_user_by_id(request.args.get("debug_impersonate_user"))
+            print(user)
         else:
             user = get_user_info(token)
         current_app.logger.debug("Injected user: (Username: %s, ID: %s)" % (user["username"], user["id"]))

@@ -29,6 +29,7 @@ if app.debug:
     logging.basicConfig(level=logging.DEBUG)
 else:
     logging.basicConfig(level=logging.INFO)
+    
 @app.route('/')
 def index():
     return redirect("/app/")
@@ -53,6 +54,34 @@ def internal_server_error(e):
 
     return render_template("simple-message.html", title="500 Internal Server Error", 
                            message="The server encountered an error and cannot complete the request.", user=user), 500
+
+@app.errorhandler(403)
+def forbidden(e):
+    user = None
+    if request.cookies.get("access_token"):
+        user = get_user_info(request.cookies.get("access_token"))
+
+    return render_template("simple-message.html", title="403 Forbidden", 
+                           message="You do not have permission to access this resource.", user=user), 403
+
+@app.errorhandler(401)
+def unauthorized(e):
+    user = None
+    if request.cookies.get("access_token"):
+        user = get_user_info(request.cookies.get("access_token"))
+
+    return render_template("simple-message.html", title="401 Unauthorized", 
+                           message="You must be logged in to access this resource.", user=user), 401
+
+@app.errorhandler(400)
+def bad_request(e):
+    user = None
+    if request.cookies.get("access_token"):
+        user = get_user_info(request.cookies.get("access_token"))
+
+    return render_template("simple-message.html", title="400 Bad Request", 
+                           message="The server could not understand the request.", user=user), 400
+
 @app.route("/favicon.ico")
 def favicon():
     return app.send_static_file("icon.png")
