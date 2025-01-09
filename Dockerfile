@@ -26,7 +26,7 @@ RUN npx tailwindcss -i ./src/input.css -o ./dist/tailwind.css
 CMD ["python", "app.py"]
 # Use multi-stage builds to reduce the final image size
 # Stage 1: Build Tailwind CSS using a Node.js image
-FROM node:18-alpine AS tailwind-builder
+FROM node:23-alpine AS tailwind-builder
 
 WORKDIR /app
 
