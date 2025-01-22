@@ -3,6 +3,7 @@ from requests import post, get
 from json import loads
 from os import getenv
 from datetime import datetime, timedelta
+from uuid import uuid4
 
 auth_discord = Blueprint("auth_discord", __name__, template_folder="templates", static_folder="static")
 
@@ -43,4 +44,6 @@ def discord_login_callback():
 
     r = redirect("/app/")
     r.set_cookie("access_token", j["access_token"], expires=expires)
+    r.set_cookie("refresh_token", j["refresh_token"], expires=expires)
+    r.set_cookie("session_id", str(uuid4()), expires=expires)
     return r
