@@ -62,7 +62,7 @@ pipeline {
                                 -e BOT_TOKEN -e BUILD_NUMBER -e DISCORD_CLIENT_ID -e DISCORD_CLIENT_SECRET \
                                 -e MYSQL_HOST -e MYSQL_DATABASE -e MYSQL_USER -e MYSQL_PASSWORD \
                                 -e GIT_COMMIT --restart=always -p  5600:5000 \
-                                $DOCKER_IMAGE" flask run -h 0.0.0.0
+                                $DOCKER_IMAGE flask run -h 0.0.0.0"
             }
         }
     } // stages
