@@ -9,7 +9,6 @@ pipeline {
         BOT_TOKEN = credentials('alphagamebot-token')
         DISCORD_CLIENT_ID = 946533554953809930
         DISCORD_CLIENT_SECRET = credentials('alphagamebot-client-secret')
-        WEBHOOK = credentials('alphagamebot-webhook')
         DOCKER_TOKEN = credentials('alphagamedev-docker-token')
         AGB_VERSION = sh(returnStdout: true, script: "cat webui.json | jq '.VERSION' -cMr").trim()
         COMMIT_MESSAGE = sh(script: 'git log -1 --pretty=%B ${GIT_COMMIT}', returnStdout: true).trim()
@@ -49,7 +48,7 @@ pipeline {
                 sh 'echo $DOCKER_TOKEN | docker login -u alphagamedev --password-stdin'
                 sh 'docker tag  $DOCKER_IMAGE alphagamedev/alphagamebot:webui-latest' // point tag latest to most recent version
                 sh 'docker push $DOCKER_IMAGE' // push tag latest version
-                sh 'docker push alphagamedev/alphagamebot:webuilatest' // push tag latest
+                sh 'docker push alphagamedev/alphagamebot:webui-latest' // push tag latest
                 sh 'docker logout'
             }
         }
