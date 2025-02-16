@@ -110,7 +110,14 @@ def mass_get_users_by_id_async(user_ids):
         complete_url = url + "/" + str(user_id)
         async with session.get(complete_url, headers=headers) as response:
             if response.status != 200:
-                current_app.logger.error("Failed to fetch user %s: %s: %s" % (user_id, response.status, await response.json()))
+                j = await response.json()
+                code = response.status
+                current_app.logger.error("Failed to fetch user %s: %s: %s" % (user_id, response.status, j))
+                if code == 429:
+                    current_app.logger.error("oh fuck we're getting ratelimited!  Waiting %s seconds to make Discord happy", j["retry_after"])
+                    await asyncio.sleep(j["retry_after"])
+                    return await fetch(url, session, user_id, headers)
+                    
             return await response.json()
     
     async def fetch_all(user_ids):
