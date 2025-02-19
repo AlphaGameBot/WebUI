@@ -81,7 +81,7 @@ pipeline {
                     result: buildStatus
                 )
             }
-            sh "pip install requests && python3 scripts/healthcheck-postdeployment.py"
+            sh "docker run --rm -i --name agb-webui-postdeploy-healthcheck -e JENKINS_DISCORD_WEBHOOK $DOCKER_IMAGE python3 scripts/healthcheck-postdeployment.py"
         }
     }
 }
