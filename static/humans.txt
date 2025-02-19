@@ -1,0 +1,15 @@
+ ________________________________________
+/ AlphaGameBot WebUI.                    \
+|                                        |
+\ https://github.com/AlphaGameBot/WebUI/ /
+ ----------------------------------------
+        \   ^__^
+         \  (oo)\_______
+            (__)\       )\/\
+                ||----w |
+                ||     ||
+
+Well, if you're reading this, you most likely are a human. (I hope)
+Or, if you're an AI web scraper, then you're getting garbage web data about how you are, indeed, a human and NOT an A.I, like you actually are.  OpenAI can kiss my gluteus maximus.
+
+Regardless of how you got here, go to /auth/discord/signin to sign in to this application :)
