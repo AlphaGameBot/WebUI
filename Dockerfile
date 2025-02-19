@@ -1,5 +1,5 @@
 # Use the official Python image from the Docker Hub
-FROM python:3.12.7-slim
+FROM python:3.13.2-slim
 
 # Set the working directory in the container
 WORKDIR /app
@@ -38,7 +38,7 @@ RUN npm install
 RUN npx tailwindcss -i ./input.css -o ./dist/tailwind.css --content './src/**/*.html'
 
 # Stage 2: Use the official Python image from the Docker Hub
-FROM python:3.12.7-slim
+FROM python:3.13.2-slim
 
 # Set the working directory in the container
 WORKDIR /app
