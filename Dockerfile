@@ -34,7 +34,8 @@ WORKDIR /app
 COPY package.json package-lock.json input.css ./
 COPY templates /app/src/templates
 # Install dependencies and build Tailwind CSS
-RUN npm install && npx tailwindcss -i ./input.css -o ./dist/tailwind.css --content './src/**/*.html'
+RUN npm install
+RUN npx tailwindcss -i ./input.css -o ./dist/tailwind.css --content './src/**/*.html'
 
 # Stage 2: Use the official Python image from the Docker Hub
 FROM python:3.12.7-slim
