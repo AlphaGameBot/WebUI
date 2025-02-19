@@ -1,3 +1,4 @@
+<!-- HTML TEMPLATE BASE: /base.html -->
 <!DOCTYPE html>
 <html lang="en">
     <head>
@@ -38,7 +39,7 @@
                         </a>
                     </p>
                     <hr class="border-gray-700" />
-                    <p class="text-center text-gray-400 text-xs mt-2">&copy; 2024 Damien Boisvert (AlphaGameDeveloper). Some Rights Reserved</p>
+                    <p class="text-center text-gray-400 text-xs mt-2">&copy; 2025 Damien Boisvert (AlphaGameDeveloper). Some Rights Reserved</p>
                 </div>
             </div>
             <!-- Main Content -->
@@ -47,7 +48,7 @@
                     <div class="absolute top-0 right-0 m-4">
                         {% if user.avatar %}
                         <div class="relative group">
-                            <img src="https://cdn.discordapp.com/avatars/{{ user.id }}/{{ user.avatar }}.jpg?size=96" alt="User Avatar ({{ user.username }})" class="h-12 w-12 rounded-full">
+                            <img src="https://cdn.discordapp.com/avatars/{{ user.id }}/{{ user.avatar }}.jpg?size=96" alt="Current User Avatar ({{ user.username }})" class="h-12 w-12 rounded-full">
                             <span class="absolute right-full top-1/2 text-right transform -translate-y-1/2 mr-2 whitespace-nowrap bg-gray-800 text-white px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity duration-300">Howdy, {{ user.global_name }}!<br>
                             <span class="text-xs" >
                                 <a href="/app/logout" class="text-blue-500">
@@ -67,4 +68,3 @@
         </div>
     </body>
 </html>
-</script>
