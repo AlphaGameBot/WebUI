@@ -38,7 +38,15 @@ def discord_login_callback():
     })
     j = loads(r.content)
     if r.status_code != 200:
-        return Response("Error while logging in: %s" % j["error_description"] , status=500)
+        reason = j.get("error_description", None)
+        if not reason:
+            reason = j.get("error", None)
+        
+        if not reason:
+            print(j)
+            reason = "No idea why it failed... :/"
+
+        return Response("Error while logging in: %s" % reason, status=500)
     
     expires = datetime.now() + timedelta(seconds=j["expires_in"])
 

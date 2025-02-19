@@ -50,6 +50,15 @@ def app_guild_stats(guildid, token, user):
         return render_template("simple-message.html", user=user, title="Guild Not Found", message="AlphaGameBot can't find the requested guild.  Either it doesn't exist (it happens to the best of us!), or AlphaGameBot is not in that guild, yet.")
     
     cursor.execute("SELECT user_level, points, messages_sent, commands_ran FROM guild_user_stats WHERE userid = %s AND guildid = %s", (user["id"], guildid))
+    db_result = cursor.fetchone()
+
+    if db_result is None:
+        return render_template("simple-message.html",
+                               title="Well... this is awkward!",
+                               message="I cannot get the information requested..."
+                                       "Send a message in the Discord server, or run an AlphaGameBot command in this server."
+                                       "If the problem persists, then make a GitHub issue!"), 500
+                               
     level, points, messages_sent, commands_ran = cursor.fetchone()
 
     return render_template("app/guild_user_stats.html", user=user, guild=guild, level=level, points=points, messages_sent=messages_sent, commands_ran=commands_ran)
@@ -72,9 +81,9 @@ def app_leaderboard(token, user):
     cursor.execute("SELECT messages_sent, commands_ran FROM user_stats WHERE userid=%s", (user["id"],))
     re = cursor.fetchone()
     if re is None:
-        messages_sent = 0
-        commands_ran = 0
-        points = 0
+        messages_sent = -1
+        commands_ran = -1
+        points = -1
     else:
         messages_sent, commands_ran = re
         points = messages_sent + commands_ran * 5
