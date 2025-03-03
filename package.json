@@ -9,6 +9,6 @@
   "author": "Damien Boisvert",
   "license": "GPL-3.0-or-later",
   "dependencies": {
-    "tailwindcss": "^3.4.15"
+    "tailwindcss": "^4.0.9"
   }
 }
