@@ -1,6 +1,6 @@
-from flask import Blueprint, render_template, redirect, request, Response
+from flask import Blueprint, render_template, redirect, request, Response, current_app
 from requests import post, get
-from utility import cnx
+from utility import cnx, INTERNAL_CACHE
 
 api = Blueprint("api", __name__, template_folder="templates", static_folder="static")
 
@@ -20,3 +20,11 @@ def global_stats(user_id):
         "messages_sent": messages_sent,
         "commands_ran": commands_ran
     }
+
+@api.route("/internalCache")
+def internal_cache():
+    if not current_app.debug:
+        return {
+            "error": "This endpoint is only available in debug mode!"
+        }, 403
+    return INTERNAL_CACHE

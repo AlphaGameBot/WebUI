@@ -13,6 +13,7 @@ from blueprints.app import app as app_bp
 from blueprints.app_stats import app_stats
 from blueprints.app_admin import app_admin
 from blueprints.api import api
+from blueprints.api_leaderboard import api_leaderboard
 logging.basicConfig(format="%(message)s")
 
 app = Flask(__name__, static_url_path='/static')
@@ -32,6 +33,8 @@ app.register_blueprint(auth_discord, url_prefix="/auth/discord")
 app.register_blueprint(app_bp, url_prefix="/app")
 app.register_blueprint(app_stats, url_prefix="/app/stats/")
 app.register_blueprint(app_admin, url_prefix="/app/admin/")
+app.register_blueprint(api, url_prefix="/api")
+app.register_blueprint(api_leaderboard, url_prefix="/api/leaderboard")
 
 if app.debug:
     logging.basicConfig(level=logging.DEBUG)

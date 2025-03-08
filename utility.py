@@ -8,12 +8,15 @@ import asyncio, aiohttp
 import mysql.connector
 from functools import wraps
 from flask import current_app, request, jsonify, redirect, url_for
+import time
 
 with open("webui.json", "r") as f:
     VERSION = load(f)["VERSION"]
 
 INTERNAL_CACHE = {
-    "SESSIONS": {}
+    "SESSIONS": {},
+    "USERS": {}, # Basically just a Discord user data cache with the item in the dict "_agb_cache_expires" being the time it expires and needs to be refreshed
+    "GUILDS": {} # Same as above but for guilds
 }
 
 DB_CONNECTION_INFO = {
@@ -104,8 +107,26 @@ def mass_get_users_by_id_async(user_ids):
     headers = {
         "Authorization": "Bot %s" % getenv("BOT_TOKEN")
     }
-    users = []
-    # using aiohttp
+    
+    # Check cache first
+    current_time = time.time()
+    cached_users = []
+    users_to_fetch = []
+    
+    for user_id in user_ids:
+        user_id_str = str(user_id)
+        if user_id_str in INTERNAL_CACHE["USERS"] and INTERNAL_CACHE["USERS"][user_id_str].get("_agb_cache_expires", 0) > current_time:
+            # Cache hit
+            cached_users.append(INTERNAL_CACHE["USERS"][user_id_str])
+        else:
+            # Cache miss or expired
+            users_to_fetch.append(user_id)
+    
+    # If all users are in cache, return them immediately
+    if not users_to_fetch:
+        return cached_users
+    
+    # Otherwise, fetch the missing users
     async def fetch(url, session, user_id, headers):
         complete_url = url + "/" + str(user_id)
         async with session.get(complete_url, headers=headers) as response:
@@ -117,7 +138,6 @@ def mass_get_users_by_id_async(user_ids):
                     current_app.logger.error("oh fuck we're getting ratelimited!  Waiting %s seconds to make Discord happy", j["retry_after"])
                     await asyncio.sleep(j["retry_after"])
                     return await fetch(url, session, user_id, headers)
-                    
             return await response.json()
     
     async def fetch_all(user_ids):
@@ -125,9 +145,92 @@ def mass_get_users_by_id_async(user_ids):
             tasks = []
             for user_id in user_ids:
                 tasks.append(fetch(url, session, user_id, headers))
-            return await asyncio.gather(*tasks)
-    users = asyncio.run(fetch_all(user_ids))
-    return users
+            fetched_users = await asyncio.gather(*tasks)
+            
+            # Cache the fetched users
+            for user_data in fetched_users:
+                if "id" in user_data:
+                    user_id = user_data["id"]
+                    # Add expiration timestamp (5 minutes)
+                    user_data["_agb_cache_expires"] = time.time() + 300  # 5 minutes = 300 seconds
+                    INTERNAL_CACHE["USERS"][user_id] = user_data
+            
+            return fetched_users
+    
+    # Only fetch users not in cache
+    fetched_users = []
+    if users_to_fetch:
+        fetched_users = asyncio.run(fetch_all(users_to_fetch))
+    
+    # Combine cached and fetched users
+    all_users = cached_users + fetched_users
+    return all_users
+
+def mass_get_guilds_by_id_async(guild_ids: list[int]) -> dict[int, dict]:
+    url = "https://discord.com/api/guilds"
+    headers = {
+        "Authorization": "Bot %s" % getenv("BOT_TOKEN")
+    }
+    
+    # Check cache first
+    current_time = time.time()
+    result_dict = {}
+    guilds_to_fetch = []
+    
+    for guild_id in guild_ids:
+        guild_id_str = str(guild_id)
+        if guild_id_str in INTERNAL_CACHE["GUILDS"] and INTERNAL_CACHE["GUILDS"][guild_id_str].get("_agb_cache_expires", 0) > current_time:
+            # Cache hit
+            guild_data = INTERNAL_CACHE["GUILDS"][guild_id_str]
+            result_dict[int(guild_id)] = guild_data
+        else:
+            # Cache miss or expired
+            guilds_to_fetch.append(guild_id)
+    
+    # If all guilds are in cache, return them immediately
+    if not guilds_to_fetch:
+        return result_dict
+    
+    async def fetch(url, session, guild_id, headers):
+        complete_url = url + "/" + str(guild_id)
+        async with session.get(complete_url, headers=headers) as response:
+            if response.status != 200:
+                j = await response.json()
+                code = response.status
+                current_app.logger.error("Failed to fetch guild %s: %s: %s" % (guild_id, response.status, j))
+                if code == 429:
+                    current_app.logger.error("Rate limited! Waiting %s seconds to make Discord happy", j["retry_after"])
+                    await asyncio.sleep(j["retry_after"])
+                    return await fetch(url, session, guild_id, headers)
+            return await response.json()
+    
+    async def fetch_all(guild_ids):
+        async with aiohttp.ClientSession() as session:
+            tasks = []
+            for guild_id in guild_ids:
+                tasks.append(fetch(url, session, guild_id, headers))
+            results = await asyncio.gather(*tasks)
+            
+            # Convert to dictionary with guild_id as key and cache the results
+            guilds_dict = {}
+            for i, guild_data in enumerate(results):
+                if "id" in guild_data:
+                    guild_id = guild_data["id"]
+                    # Add expiration timestamp (5 minutes)
+                    guild_data["_agb_cache_expires"] = time.time() + 300  # 5 minutes = 300 seconds
+                    INTERNAL_CACHE["GUILDS"][guild_id] = guild_data
+                    guilds_dict[int(guild_id)] = guild_data
+                else:
+                    current_app.logger.warning(f"Could not fetch guild data for ID {guild_ids[i]}")
+            return guilds_dict
+    
+    # Only fetch guilds not in cache
+    if guilds_to_fetch:
+        fetched_guilds = asyncio.run(fetch_all(guilds_to_fetch))
+        # Merge with cached results
+        result_dict.update(fetched_guilds)
+    
+    return result_dict
 
 def initialize_cache_for_session(session_id):
     logger = current_app.logger
