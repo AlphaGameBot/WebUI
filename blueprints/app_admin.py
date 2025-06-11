@@ -20,6 +20,7 @@ def userHasPermissionToServer(guild):
 @app_admin.route("/")
 def app_admin_index():
     token = request.cookies.get("access_token")
+    assert token is not None, "Access token is required to access this page."
     user = get_user_info(token)
     cursor = cnx.cursor()
     cursor.execute("SELECT guildid FROM guild_settings")
@@ -41,6 +42,8 @@ def app_admin_index():
 @app_admin.route("/guild/<int:guildid>")
 def app_guild(guildid):
     token = request.cookies.get("access_token")
+    assert token is not None, "Access token is required to access this page."
+
     user = get_user_info(token)
     if not user_has_administrator(token, guildid):
         return render_template("simple-message.html", title="No Permission", message="You do not have permission to do this. (Nice try, though!)", user=user)
@@ -49,6 +52,7 @@ def app_guild(guildid):
     guilddb = cursor.fetchone()
     if not guilddb:
         return render_template("simple-message.html", title="Unknown Guild", message="AlphaGameBot doesn't know that guild... Is AlphaGameBot in that server?", user=user)
+    assert isinstance(guilddb, list), "Guild settings not found in the database."
     leveling = guilddb[2]
     guild = get_guild_by_id(guildid)
     
@@ -59,6 +63,7 @@ def app_guild(guildid):
 @app_admin.route("/guild/<int:guildid>/updateSettings", methods=["POST"])
 def app_guild_update(guildid):
     token = request.cookies.get("access_token")
+    assert token is not None, "Access token is required to access this page."
     user = get_user_info(token)
     cursor = cnx.cursor()
     cursor.execute("SELECT * FROM guild_settings WHERE guildid=%s", (guildid,))

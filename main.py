@@ -32,7 +32,7 @@ app.register_blueprint(auth_discord, url_prefix="/auth/discord")
 app.register_blueprint(app_bp, url_prefix="/app")
 app.register_blueprint(app_stats, url_prefix="/app/stats/")
 app.register_blueprint(app_admin, url_prefix="/app/admin/")
-
+app.register_blueprint(api, url_prefix="/api")
 if app.debug:
     logging.basicConfig(level=logging.DEBUG)
 else:
