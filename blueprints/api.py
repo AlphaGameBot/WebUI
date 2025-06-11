@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, redirect, request, Response
+from flask import Blueprint, render_template, redirect, request, Response, current_app
 from requests import post, get
 from utility import cnx
 from requests import post
@@ -27,9 +27,8 @@ def global_stats(user_id):
 def discord():
     # https://discord.com/developers/docs/events/webhook-events#event-types
     data = request.json or {}
-    
+    current_app.logger.info(f"Received Discord webhook: {data}")
     # the documentation is a bit misleading, it says `type` is an integer but it is actually a string in the payload
-    data["type"] = int(data["type"]) 
     
     # PING event
     if data.get("type") == 0:
