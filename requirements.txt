@@ -7,3 +7,4 @@ Font-Awesome-Flask
 flask-resize
 # 'setuptools' because of a stupid problem with `flask-resize.` https://github.com/jacobsvante/Flask-Resize/issues/27
 setuptools
+protobuf>=4.25.8 # not directly required, pinned by Snyk to avoid a vulnerability
